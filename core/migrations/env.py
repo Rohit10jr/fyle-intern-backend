@@ -1,37 +1,28 @@
 from __future__ import with_statement
-
+#  used to set up logging so that Alembic can log important migration details.
 import logging
 from logging.config import fileConfig
-
+# Accesses the running Flask app.
 from flask import current_app
-
+# used to run migrations (either in online or offline mode).
 from alembic import context
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+# this is the Alembic Config object
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
+# Sets up logging alembic.ini file so that Alembic logs events (like migration success/failure).
 fileConfig(config.config_file_name)
 logger = logging.getLogger('alembic.env')
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
+# Instead of hardcoding the database URL in alembic.ini, it dynamically pulls it from your Flask app's configuration, ensuring you're always migrating the correct database.
 config.set_main_option(
     'sqlalchemy.url',
     str(current_app.extensions['migrate'].db.get_engine().url).replace(
         '%', '%%'))
 target_metadata = current_app.extensions['migrate'].db.metadata
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
 
-
+# This function handles offline migrations, where there’s no direct database connection.
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
 
@@ -44,7 +35,9 @@ def run_migrations_offline():
     script output.
 
     """
+    # Fetches the database URL from the configuration.
     url = config.get_main_option("sqlalchemy.url")
+    # Sets up the migration context in "offline" mode. It uses literal SQL statements instead of interacting with the database directly.
     context.configure(
         url=url, target_metadata=target_metadata, literal_binds=True
     )
@@ -52,7 +45,7 @@ def run_migrations_offline():
     with context.begin_transaction():
         context.run_migrations()
 
-
+# This function where a direct connection to the database is available.
 def run_migrations_online():
     """Run migrations in 'online' mode.
 
@@ -63,7 +56,7 @@ def run_migrations_online():
 
     # this callback is used to prevent an auto-migration from being generated
     # when there are no changes to the schema
-    # reference: http://alembic.zzzcomputing.com/en/latest/cookbook.html
+    # it logs the message: "No changes in schema detected." and prevents empty migration scripts from being created.
     def process_revision_directives(context, revision, directives):
         if getattr(config.cmd_opts, 'autogenerate', False):
             script = directives[0]
@@ -71,9 +64,12 @@ def run_migrations_online():
                 directives[:] = []
                 logger.info('No changes in schema detected.')
 
+    # This line connects to the database.
     connectable = current_app.extensions['migrate'].db.get_engine()
 
+    #  Establishes a database connection for migration.
     with connectable.connect() as connection:
+        # Configures Alembic with the database connection and model metadata.
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
@@ -81,10 +77,11 @@ def run_migrations_online():
             **current_app.extensions['migrate'].configure_args
         )
 
+        # Begins a database transaction and Runs the migration
         with context.begin_transaction():
             context.run_migrations()
 
-
+# Depending on the mode, it runs the appropriate migration function.
 if context.is_offline_mode():
     run_migrations_offline()
 else:

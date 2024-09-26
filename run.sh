@@ -15,3 +15,6 @@ export FLASK_APP=core/server.py
 
 # Run server
 gunicorn -c gunicorn_config.py core.server:app
+
+# current command to run server
+waitress-serve --listen=127.0.0.1:5000  core.server:app

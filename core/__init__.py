@@ -5,12 +5,19 @@ from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from sqlite3 import Connection as SQLite3Connection
 
-app = Flask(__name__)
+app = Flask(__name__) # Initializes the Flask app
+
+# sets up the database URI to use SQLite,
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///./store.sqlite3'
+# if True, SQLAlchemy will log all the raw SQL statements
 app.config['SQLALCHEMY_ECHO'] = False
+# Disables tracking 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+# sets test client to simulate HTTP requests for testing, allows to call endpoints during testing without running the server
 app.test_client()
 
 
