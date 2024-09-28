@@ -3,7 +3,7 @@ from core import db
 from core.apis import decorators
 from core.apis.responses import APIResponse
 from core.models.assignments import Assignment
-
+from core.models.assignments import AssignmentStateEnum
 from .schema import AssignmentSchema, AssignmentGradeSchema
 teacher_assignments_resources = Blueprint('teacher_assignments_resources', __name__)
 
@@ -14,7 +14,7 @@ teacher_assignments_resources = Blueprint('teacher_assignments_resources', __nam
 def list_assignments(p):
     """Returns list of assignments"""
     # Fetches all assignments accessed by teacher.
-    teachers_assignments = Assignment.get_assignments_by_teacher()
+    teachers_assignments = Assignment.get_assignments_by_teacher(p.teacher_id)
 
     # Serializes the list of Assignment and returns.
     teachers_assignments_dump = AssignmentSchema().dump(teachers_assignments, many=True)
@@ -29,6 +29,29 @@ def grade_assignment(p, incoming_payload):
     """Grade an assignment"""
     # Deserializes the incoming JSON
     grade_assignment_payload = AssignmentGradeSchema().load(incoming_payload)
+
+    assignment = Assignment.query.get(grade_assignment_payload.id)
+
+    # if not assignment:
+    #     return APIResponse.respond(
+    #         message='Assignment not found.',
+    #         error="FyleError",
+    #         status_code=404  # Not Found
+    #     )
+
+    if assignment.state != AssignmentStateEnum.SUBMITTED:
+        return APIResponse.respond(
+            message='Only a Submitted assignment can be given Grade.',
+            error="FyleError", 
+            status_code=400   
+        )
+    
+    if assignment.teacher_id != p.teacher_id:
+        return APIResponse.respond(
+            message='You are not authorized to grade this assignment.',
+            error="FyleError",
+            status_code=400
+        )
 
     # Grades the assignment from provided grade and commits
     graded_assignment = Assignment.mark_grade(

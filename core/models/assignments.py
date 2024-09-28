@@ -31,8 +31,16 @@ class Assignment(db.Model):
     created_at = db.Column(db.TIMESTAMP(timezone=True), default=helpers.get_utc_now, nullable=False)
     updated_at = db.Column(db.TIMESTAMP(timezone=True), default=helpers.get_utc_now, nullable=False, onupdate=helpers.get_utc_now)
 
+    # def __repr__(self):
+    #     return '<Assignment %r>' % self.id
+
     def __repr__(self):
-        return '<Assignment %r>' % self.id
+        # return str(self.__dict__)
+        return f'<Assignment(id={self.id}, student_id={self.student_id}, teacher_id={self.teacher_id}, content={self.content}, grade={self.grade}, state={self.state}, created={self.created_at}, updated={self.updated_at})>'
+
+    # def __repr__(self):
+    #     fields = {key: value for key, value in self.__dict__.items() if not key.startswith('_')}
+    #     return str(fields)
 
     @classmethod
     def filter(cls, *criterion):
@@ -67,7 +75,10 @@ class Assignment(db.Model):
         assertions.assert_valid(assignment.content is not None, 'assignment with empty content cannot be submitted')
 
         assignment.teacher_id = teacher_id
+        # assignment.state = AssignmentStateEnum.SUBMITTED
         db.session.flush()
+
+        # No need for flush() if committing is handled elsewhere
 
         return assignment
 
@@ -89,5 +100,16 @@ class Assignment(db.Model):
         return cls.filter(cls.student_id == student_id).all()
 
     @classmethod
-    def get_assignments_by_teacher(cls):
-        return cls.query.all()
+    def get_assignments_by_teacher(cls, teacher_id):
+        # return cls.query.all()
+        # return cls.query.filter(cls.teacher_id == teacher_id ).all()
+        return cls.query.filter(
+            cls.teacher_id == teacher_id,
+            cls.state.in_(['SUBMITTED', 'GRADED'])
+        ).all()
+    
+
+    @classmethod
+    def get_assignments_by_principal(cls):
+        return cls.filter(cls.grade == AssignmentStateEnum.GRADED or cls.grade == AssignmentStateEnum.SUBMITTED).all()
+

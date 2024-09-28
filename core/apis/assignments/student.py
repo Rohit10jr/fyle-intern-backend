@@ -2,7 +2,7 @@ from flask import Blueprint
 from core import db
 from core.apis import decorators
 from core.apis.responses import APIResponse
-from core.models.assignments import Assignment
+from core.models.assignments import Assignment, AssignmentStateEnum
 
 from .schema import AssignmentSchema, AssignmentSubmitSchema
 
@@ -33,6 +33,14 @@ def upsert_assignment(p, incoming_payload):
     # Deserializes the incoming payload.
     assignment = AssignmentSchema().load(incoming_payload)
 
+    # Check if content is empty
+    if not assignment.content:
+        return APIResponse.respond(
+            message="Content cannot be empty.",
+            error={"code": "EMPTY_CONTENT"},
+            status_code=400  # Set the status code to 400
+        )
+
     # Ensures assignment belongs to the authenticated student, inserts or updates assignment
     assignment.student_id = p.student_id
     upserted_assignment = Assignment.upsert(assignment)
@@ -52,14 +60,34 @@ def submit_assignment(p, incoming_payload):
     # Deserializes the payload
     submit_assignment_payload = AssignmentSubmitSchema().load(incoming_payload)
 
-    # Assignment submitted, which involves changing its state to "submitted" and assigning it to a teacher, finally committed to the database
+    # Fetch the assignment by ID
+    assignment = Assignment.query.get(submit_assignment_payload.id)
+
+    # Check if the assignment is in DRAFT state
+    # if assignment.state != AssignmentStateEnum.DRAFT:
+    if assignment.state == AssignmentStateEnum.SUBMITTED or assignment.state == AssignmentStateEnum.GRADED:
+
+        return APIResponse.respond(
+            message='Only a draft assignment can be submitted.',
+            error="FyleError",  # Change this to a string
+            status_code=400  # Set the status code to 400
+        )
+
+    assignment.state = AssignmentStateEnum.SUBMITTED
+    # assignment.teacher_id = submit_assignment_payload.teacher_id
+
     submitted_assignment = Assignment.submit(
         _id=submit_assignment_payload.id,
         teacher_id=submit_assignment_payload.teacher_id,
         auth_principal=p
     )
+
+    # Commit the changes to the database
     db.session.commit()
 
-    # Serializes to JSON format and returns.
-    submitted_assignment_dump = AssignmentSchema().dump(submitted_assignment)
+    # Serialize to JSON format and return.
+    submitted_assignment_dump = AssignmentSchema().dump(assignment)
     return APIResponse.respond(data=submitted_assignment_dump)
+
+
+

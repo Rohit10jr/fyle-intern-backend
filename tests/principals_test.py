@@ -21,7 +21,7 @@ def test_grade_assignment_draft_assignment(client, h_principal):
     response = client.post(
         '/principal/assignments/grade',
         json={
-            'id': 5,
+            'id': 6,
             'grade': GradeEnum.A.value
         },
         headers=h_principal
