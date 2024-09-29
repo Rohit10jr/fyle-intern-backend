@@ -16,6 +16,12 @@ principal_assignments_resources = Blueprint('principal_assignments_resources', _
 def list_assignments_for_principal(p):
     # assignments = Assignment.query.all()
     assignments = Assignment.get_assignments_by_principal()
+    if not assignments:
+        return APIResponse.respond(
+            message="There are No assignments right now",
+            error="No Assignment",
+            status_code=200 
+        )
     assignments_dump = AssignmentSchema().dump(assignments, many=True)
     return APIResponse.respond(data=assignments_dump)
 
@@ -30,12 +36,19 @@ def grade_assignment_for_principal(p, incoming_payload):
     # Fetch the assignment by ID
     assignment = Assignment.query.get(grade_assignment_payload.id)
 
+    if not assignment:
+        return APIResponse.respond(
+            message='Assignment not found.',
+            error="FyleError",
+            status_code=404  
+        )
+
     # Check if the assignment is in "DRAFT" state
     if assignment.state == AssignmentStateEnum.DRAFT:
         return APIResponse.respond(
             message="Assignments in draft state cannot be graded.",
-            error={"code": "DRAFT_STATE"},
-            status_code=400  # Set the status code to 400
+            error="DRAFT_STATE",
+            status_code=400 
         )
 
     # Proceed to grade the assignment if it's not in DRAFT state

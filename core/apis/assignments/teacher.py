@@ -32,12 +32,12 @@ def grade_assignment(p, incoming_payload):
 
     assignment = Assignment.query.get(grade_assignment_payload.id)
 
-    # if not assignment:
-    #     return APIResponse.respond(
-    #         message='Assignment not found.',
-    #         error="FyleError",
-    #         status_code=404  # Not Found
-    #     )
+    if not assignment:
+        return APIResponse.respond(
+            message='Assignment not found.',
+            error="FyleError",
+            status_code=404  
+        )
 
     if assignment.state != AssignmentStateEnum.SUBMITTED:
         return APIResponse.respond(

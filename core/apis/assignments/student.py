@@ -37,8 +37,8 @@ def upsert_assignment(p, incoming_payload):
     if not assignment.content:
         return APIResponse.respond(
             message="Content cannot be empty.",
-            error={"code": "EMPTY_CONTENT"},
-            status_code=400  # Set the status code to 400
+            error="EMPTY_CONTENT",
+            status_code=400  
         )
 
     # Ensures assignment belongs to the authenticated student, inserts or updates assignment
@@ -65,11 +65,12 @@ def submit_assignment(p, incoming_payload):
 
     # Check if the assignment is in DRAFT state
     # if assignment.state != AssignmentStateEnum.DRAFT:
-    if assignment.state == AssignmentStateEnum.SUBMITTED or assignment.state == AssignmentStateEnum.GRADED:
+    # if assignment.state == AssignmentStateEnum.SUBMITTED or assignment.state == AssignmentStateEnum.GRADED:
+    if assignment.state in {AssignmentStateEnum.SUBMITTED, AssignmentStateEnum.GRADED}:
 
         return APIResponse.respond(
-            message='Only a draft assignment can be submitted.',
-            error="FyleError",  # Change this to a string
+            message='only a draft assignment can be submitted',
+            error="FyleError",  
             status_code=400  # Set the status code to 400
         )
 

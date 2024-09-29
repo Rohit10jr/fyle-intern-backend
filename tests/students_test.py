@@ -57,7 +57,7 @@ def test_post_assignment_student_1(client, h_student_1):
     assert data['teacher_id'] is None
 
 
-# both the below tests work, before testing again update the db so that they can work
+# Below tests work, before testing again update the state on db
 def test_submit_assignment_student_1(client, h_student_1):
     response = client.post(
         '/student/assignments/submit',

@@ -5,7 +5,7 @@ from core.libs import helpers, assertions
 from core.models.teachers import Teacher
 from core.models.students import Student
 from sqlalchemy.types import Enum as BaseEnum
-
+from sqlalchemy import or_
 
 class GradeEnum(str, enum.Enum):
     A = 'A'
@@ -111,5 +111,10 @@ class Assignment(db.Model):
 
     @classmethod
     def get_assignments_by_principal(cls):
-        return cls.filter(cls.grade == AssignmentStateEnum.GRADED or cls.grade == AssignmentStateEnum.SUBMITTED).all()
+        # return cls.filter(cls.grade == AssignmentStateEnum.GRADED or cls.grade == AssignmentStateEnum.SUBMITTED).all()
+        # return cls.query.filter(cls.grade.in_([AssignmentStateEnum.GRADED, AssignmentStateEnum.SUBMITTED])).all()
+        return cls.query.filter(or_(
+                cls.grade == AssignmentStateEnum.GRADED,
+                cls.grade == AssignmentStateEnum.SUBMITTED
+            )).all()
 

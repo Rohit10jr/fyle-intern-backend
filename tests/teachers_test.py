@@ -99,3 +99,37 @@ def test_grade_assignment_draft_assignment(client, h_teacher_1):
     data = response.json
 
     assert data['error'] == 'FyleError'
+
+
+# additional tests
+
+def test_unauthorized_teacher_grading(client, h_teacher_2):
+    """
+    failure case: Teacher 2 should not be able to grade an assignment submitted to teacher 1.
+    """
+    response = client.post(
+        '/teacher/assignments/grade',
+        headers=h_teacher_2,
+        json={
+            "id": 3,  # Assignment submitted to teacher 1, not teacher 2
+            "grade": "A"
+        }
+    )
+
+    assert response.status_code == 400
+    data = response.json
+    assert data['error'] == 'FyleError'
+
+
+def test_get_empty_assignments_list_teacher(client, h_teacher_2):
+    """
+    success case: If teacher 2 has no assignments, return an empty list.
+    """
+    response = client.get(
+        '/teacher/assignments',
+        headers=h_teacher_2
+    )
+
+    assert response.status_code == 200
+    data = response.json['data']
+    assert data == []

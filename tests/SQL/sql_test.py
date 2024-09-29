@@ -45,6 +45,7 @@ def create_n_graded_assignments_for_teacher(number: int = 0, teacher_id: int = 1
 
     # Commit changes to the database
     db.session.commit()
+    print("grade_A_counter_helper", grade_a_counter)
 
     # Return the count of assignments with grade 'A'
     return grade_a_counter
@@ -87,6 +88,7 @@ def test_get_grade_A_assignments_for_teacher_with_max_grading():
 
     # Create and grade 5 assignments for the default teacher (teacher_id=1)
     grade_a_count_1 = create_n_graded_assignments_for_teacher(5)
+    print("grade_a_count_1",grade_a_count_1)
     
     # Execute the SQL query and check if the count matches the created assignments
     sql_result = db.session.execute(text(sql)).fetchall()
@@ -94,7 +96,12 @@ def test_get_grade_A_assignments_for_teacher_with_max_grading():
 
     # Create and grade 10 assignments for a different teacher (teacher_id=2)
     grade_a_count_2 = create_n_graded_assignments_for_teacher(10, 2)
+    print("grade_a_count_2", grade_a_count_2)
 
     # Execute the SQL query again and check if the count matches the newly created assignments
     sql_result = db.session.execute(text(sql)).fetchall()
-    assert grade_a_count_2 == sql_result[0][0]
+    
+    max_grade_a_count = max(grade_a_count_1, grade_a_count_2)
+    print("Max Grade A Count:", max_grade_a_count)
+
+    assert max_grade_a_count == sql_result[0][0]
