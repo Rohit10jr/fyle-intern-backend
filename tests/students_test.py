@@ -57,7 +57,6 @@ def test_post_assignment_student_1(client, h_student_1):
     assert data['teacher_id'] is None
 
 
-# Below tests work, before testing again update the state on db
 def test_submit_assignment_student_1(client, h_student_1):
     response = client.post(
         '/student/assignments/submit',
@@ -73,14 +72,14 @@ def test_submit_assignment_student_1(client, h_student_1):
     assert data['student_id'] == 1
     assert data['state'] == 'SUBMITTED'
     assert data['teacher_id'] == 2
-    
 
-def test_assignment_resubmit_error(client, h_student_2):
+
+def test_assignment_resubmit_error(client, h_student_1):
     response = client.post(
         '/student/assignments/submit',
-        headers=h_student_2,
+        headers=h_student_1,
         json={
-            'id': 4,
+            'id': 2,
             'teacher_id': 2
         })
     error_response = response.json

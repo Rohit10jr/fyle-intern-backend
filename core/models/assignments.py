@@ -111,10 +111,10 @@ class Assignment(db.Model):
 
     @classmethod
     def get_assignments_by_principal(cls):
-        # return cls.filter(cls.grade == AssignmentStateEnum.GRADED or cls.grade == AssignmentStateEnum.SUBMITTED).all()
-        # return cls.query.filter(cls.grade.in_([AssignmentStateEnum.GRADED, AssignmentStateEnum.SUBMITTED])).all()
-        return cls.query.filter(or_(
-                cls.grade == AssignmentStateEnum.GRADED,
-                cls.grade == AssignmentStateEnum.SUBMITTED
-            )).all()
+        # return cls.filter(cls.state == AssignmentStateEnum.GRADED or cls.grade == AssignmentStateEnum.SUBMITTED).all()
+        return cls.query.filter(cls.state.in_([AssignmentStateEnum.GRADED, AssignmentStateEnum.SUBMITTED])).all()
+        # return cls.query.filter(or_(
+        #         cls.state == AssignmentStateEnum.GRADED,
+        #         cls.state == AssignmentStateEnum.SUBMITTED
+        #     )).all()
 

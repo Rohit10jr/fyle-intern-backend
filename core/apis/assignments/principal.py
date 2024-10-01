@@ -16,13 +16,14 @@ principal_assignments_resources = Blueprint('principal_assignments_resources', _
 def list_assignments_for_principal(p):
     # assignments = Assignment.query.all()
     assignments = Assignment.get_assignments_by_principal()
-    if not assignments:
-        return APIResponse.respond(
-            message="There are No assignments right now",
-            error="No Assignment",
-            status_code=200 
-        )
+    # if not assignments:
+    #     return APIResponse.respond(
+    #         message="There are No assignments right now",
+    #         error="No Assignment",
+    #         status_code=200 
+    #     )
     assignments_dump = AssignmentSchema().dump(assignments, many=True)
+    print("assignment dump",assignments_dump)
     return APIResponse.respond(data=assignments_dump)
 
 

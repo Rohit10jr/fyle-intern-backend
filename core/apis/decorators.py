@@ -29,6 +29,13 @@ def authenticate_principal(func):
         # Checks principal exists (assert_auth), converts principal string into Python dictionary, and instantiates an AuthPrincipal object.
         assertions.assert_auth(p_str is not None, 'principal not found')
         p_dict = json.loads(p_str)
+
+        # assertions.assert_auth(p_str is not None and p_str.strip(), 'Principal header is missing or empty')
+        # try:
+        #     p_dict = json.loads(p_str)
+        # except json.JSONDecodeError:
+        #     assertions.assert_auth(False, 'Invalid JSON in Principal header')
+
         p = AuthPrincipal(
             user_id=p_dict['user_id'],
             student_id=p_dict.get('student_id'),
