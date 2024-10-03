@@ -1,9 +1,10 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from sqlite3 import Connection as SQLite3Connection
+from .libs.exceptions import FyleError
 
 app = Flask(__name__) # Initializes the Flask app
 
@@ -28,3 +29,10 @@ def _set_sqlite_pragma(dbapi_connection, connection_record):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON;")
         cursor.close()
+
+
+# @app.errorhandler(FyleError)
+# def handle_fyle_error(error):
+#     response = jsonify(error.to_dict()) 
+#     response.status_code = error.status_code
+#     return response
