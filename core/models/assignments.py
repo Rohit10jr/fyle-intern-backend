@@ -75,7 +75,7 @@ class Assignment(db.Model):
         assertions.assert_valid(assignment.content is not None, 'assignment with empty content cannot be submitted')
 
         assignment.teacher_id = teacher_id
-        # assignment.state = AssignmentStateEnum.SUBMITTED
+        assignment.state = AssignmentStateEnum.SUBMITTED
         db.session.flush()
 
         # No need for flush() if committing is handled elsewhere

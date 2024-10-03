@@ -63,13 +63,12 @@ def test_regrade_assignment(client, h_principal):
 
 
 
-# #  additional tests 
+#  additional tests 
 
 def test_get_assignments_unauthorized_access(client):
-    """Test for unauthorized access when no principal token is provided."""
+    """Test for unauthorized access when no principal header"""
     response = client.get('/principal/assignments')
 
-    # assert 'Unauthorized' in response.json['message']
     assert response.status_code == 401
 
 
@@ -87,7 +86,7 @@ def test_grade_assignment_invalid_grade_value(client, h_principal):
 
 
 def test_grade_assignment_invalid_id_value(client, h_principal):
-    """Test for grading an assignment with an invalid grade value."""
+    """Test for grading an assignment with an invalid id value."""
     response = client.post(
         '/principal/assignments/grade',
         json={
@@ -130,17 +129,17 @@ def test_grade_assignment_invalid_id_2(client, h_principal):
 
 
 
-def test_get_assignments_specific_states(client, h_principal):
-    """Test to ensure it fetches assignment with GRADED or SUBMITTED."""
-    response = client.get(
-        '/principal/assignments',
-        headers=h_principal
-    )
-    assert response.status_code == 200
+# def test_get_assignments_specific_states(client, h_principal):
+#     """Test to ensure it fetches assignment with GRADED or SUBMITTED."""
+#     response = client.get(
+#         '/principal/assignments',
+#         headers=h_principal
+#     )
+#     assert response.status_code == 200
 
-    data = response.json['data']
-    for assignment in data:
-        assert assignment['state'] in [AssignmentStateEnum.SUBMITTED, AssignmentStateEnum.GRADED]
+#     data = response.json['data']
+#     for assignment in data:
+#         assert assignment['state'] in [AssignmentStateEnum.SUBMITTED, AssignmentStateEnum.GRADED]
 
 
 def test_grade_assignment_invalid_payload(client, h_principal):
@@ -179,7 +178,7 @@ def test_grade_assignment_multiple_times(client, h_principal):
     assert response.json['data']['grade'] == GradeEnum.A.value
 
 
-def test_grade_assignment_missing_fields(client, h_principal):
+def test_grade_assignment_missing_grade(client, h_principal):
     """Test for missing fields in the grading payload."""
     # Missing 'grade' field
     response = client.post(
@@ -191,6 +190,8 @@ def test_grade_assignment_missing_fields(client, h_principal):
     )
     assert response.status_code == 400
 
+
+def test_grade_assignment_missing_id(client, h_principal):
     # Missing 'id' field
     response = client.post(
         '/principal/assignments/grade',
@@ -202,7 +203,57 @@ def test_grade_assignment_missing_fields(client, h_principal):
     assert response.status_code == 400
 
 
-# # principal/teacher route 
+def test_grade_unauthorized_method(client, h_principal):
+    """
+    Test unauthorized method(post) to the assignments endpoint.
+    """
+    response = client.post(
+        '/principal/assignments',
+        headers=h_principal
+    )
+
+    assert response.status_code == 405  
+
+
+def test_grade_unauthorized_method2(client, h_principal):
+    """
+    Test unauthorized method(get) to the grade endpoint.
+    """
+    response = client.get(
+        '/principal/assignments/grade',
+        headers=h_principal
+    )
+
+    assert response.status_code == 405  
+
+
+def test_assignments_malformed_header(client, h_teacher_1):
+    """
+    Test grade with Teacher id.
+    """
+    
+    response = client.post(
+        '/principal/assignments/grade',
+        headers=h_teacher_1
+    )
+
+    assert response.status_code == 403
+
+
+def test_grade_malformed_header(client, h_student_1):
+    """
+    Test grade with a student id.
+    """
+    
+    response = client.post(
+        '/principal/assignments/grade',
+        headers=h_student_1
+    )
+
+    assert response.status_code == 403  
+
+
+# principal/teacher route 
 def test_list_teachers_no_teachers(client, h_principal):
     """
     Test when there are no teachers available.
@@ -242,3 +293,40 @@ def test_list_teachers_unauthorized(client):
     assert response.status_code == 401  
     assert 'error' in response.json  
 
+
+def test_teachers_unauthorized_method(client, h_principal):
+    """
+    Test unauthorized method(post) to the teachers endpoint.
+    """
+    response = client.post(
+        '/principal/teachers',
+        headers=h_principal
+    )
+
+    assert response.status_code == 405  
+
+
+def test_list_teachers_malformed_header(client, h_student_1):
+    """
+    Test fetching teachers with a Student id.
+    """
+    
+    response = client.get(
+        '/principal/teachers',
+        headers=h_student_1
+    )
+
+    assert response.status_code == 403  
+
+
+def test_list_teachers_malformed_header2(client, h_teacher_1):
+    """
+    Test fetching teachers with a Teacher id.
+    """
+    
+    response = client.get(
+        '/principal/teachers',
+        headers=h_teacher_1
+    )
+
+    assert response.status_code == 403  

@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, jsonify, make_response
 from core import db
 from core.apis import decorators
 from core.apis.responses import APIResponse
@@ -39,7 +39,8 @@ def grade_assignment(p, incoming_payload):
             status_code=404  
         )
 
-    if assignment.state != AssignmentStateEnum.SUBMITTED:
+    # if assignment.state != AssignmentStateEnum.SUBMITTED:
+    if assignment.state == AssignmentStateEnum.DRAFT:
         return APIResponse.respond(
             message='Only a Submitted assignment can be given Grade.',
             error="FyleError", 
@@ -52,6 +53,14 @@ def grade_assignment(p, incoming_payload):
             error="FyleError",
             status_code=400
         )
+
+        # return make_response(jsonify({
+        #     'assignment id': assignment.id,
+        #     'pteacherid': p.teacher_id,
+        #     'teacher_id': assignment.teacher_id,
+        #     'message': 'You are not authorized to grade this assignment.',
+        #     'error': 'FyleError'
+        # }), 400)
 
     # Grades the assignment from provided grade and commits
     graded_assignment = Assignment.mark_grade(

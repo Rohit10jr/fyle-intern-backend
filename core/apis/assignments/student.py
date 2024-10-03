@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, jsonify, make_response
 from core import db
 from core.apis import decorators
 from core.apis.responses import APIResponse
@@ -74,21 +74,29 @@ def submit_assignment(p, incoming_payload):
             status_code=400  # Set the status code to 400
         )
 
-    assignment.state = AssignmentStateEnum.SUBMITTED
+    # assignment.state = AssignmentStateEnum.SUBMITTED
     # assignment.teacher_id = submit_assignment_payload.teacher_id
 
     submitted_assignment = Assignment.submit(
         _id=submit_assignment_payload.id,
         teacher_id=submit_assignment_payload.teacher_id,
-        auth_principal=p
+        auth_principal=p,
+        
     )
 
     # Commit the changes to the database
     db.session.commit()
 
     # Serialize to JSON format and return.
-    submitted_assignment_dump = AssignmentSchema().dump(assignment)
+    submitted_assignment_dump = AssignmentSchema().dump(submitted_assignment)
     return APIResponse.respond(data=submitted_assignment_dump)
+
+    # return make_response(jsonify({
+    #             'assignment id': submitted_assignment.id,
+    #             'pteacherid': p.teacher_id,
+    #             'teacher_id': submitted_assignment.teacher_id,
+    #             'A': "aaa"
+    #         }), 200)
 
 
 
