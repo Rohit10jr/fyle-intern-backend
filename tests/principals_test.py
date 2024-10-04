@@ -329,6 +329,7 @@ def test_list_teachers_malformed_header2(client, h_teacher_1):
         headers=h_teacher_1
     )
 
+<<<<<<< HEAD
     assert response.status_code == 403  
 
 
@@ -343,3 +344,6 @@ def test_unknown_route(client, h_teacher_1):
     )
 
     assert response.status_code == 404 
+=======
+    assert response.status_code == 403  
+>>>>>>> ad02b83f9c0286be37814682661c55a821ddb4e9
