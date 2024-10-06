@@ -26,6 +26,8 @@ def ready():
     })
 
     return response
+    
+app.config['TRAP_HTTP_EXCEPTIONS']=True
 
 
 # Global error handler for the application

@@ -1,5 +1,5 @@
-from core.models.assignments import AssignmentStateEnum, GradeEnum
-
+from core.models.assignments import Assignment, AssignmentStateEnum, GradeEnum
+from core.models.principals import Principal
 
 def test_get_assignments(client, h_principal):
     response = client.get(
@@ -343,3 +343,12 @@ def test_unknown_route(client, h_teacher_1):
     )
 
     assert response.status_code == 404 
+
+# model repr 
+def test_principal_repr():
+    principal = Principal(id=1)
+    repr_student = repr(principal)
+    assert repr_student == '<Principal 1>'
+
+
+
