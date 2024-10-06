@@ -318,7 +318,6 @@ def test_list_teachers_malformed_header(client, h_student_1):
 
     assert response.status_code == 403  
 
-
 def test_list_teachers_malformed_header2(client, h_teacher_1):
     """
     Test fetching teachers with a Teacher id.
@@ -344,11 +343,9 @@ def test_unknown_route(client, h_teacher_1):
 
     assert response.status_code == 404 
 
+
 # model repr 
 def test_principal_repr():
     principal = Principal(id=1)
     repr_student = repr(principal)
     assert repr_student == '<Principal 1>'
-
-
-
