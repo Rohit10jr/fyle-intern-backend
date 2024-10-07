@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, make_response
+from flask import abort, Blueprint, jsonify, make_response
 from core import db
 from core.apis import decorators
 from core.apis.responses import APIResponse
@@ -6,6 +6,7 @@ from core.models.assignments import Assignment
 from core.models.assignments import AssignmentStateEnum
 from .schema import AssignmentSchema, AssignmentGradeSchema
 teacher_assignments_resources = Blueprint('teacher_assignments_resources', __name__)
+from core import app
 
 
 # Teachers can retrieve all assignment
@@ -73,3 +74,22 @@ def grade_assignment(p, incoming_payload):
     #  Serializes the graded_assignment back to json
     graded_assignment_dump = AssignmentSchema().dump(graded_assignment)
     return APIResponse.respond(data=graded_assignment_dump)
+
+
+@teacher_assignments_resources.route('/abort', methods=['GET'], strict_slashes=False)
+@decorators.authenticate_principal
+def teacher_abort(p):
+    # print("Inside teacher_abort function")  
+    # if p:
+    #     print("p is truthy, about to abort with 403")  
+    #     abort(403, description="Resource not found")
+    abort(403, description="Resource not found")
+
+
+# @teacher_assignments_resources.route('/abort', methods=['GET'], strict_slashes=False)
+# @app.route('/trigger-error', methods=['GET'])
+# def trigger_runtime_error():
+#     abort(409, description="Resource not found")
+    # raise RuntimeError("This is a test runtime error")
+    # raise ValueError("This is a test ValueError")
+    # abort(500, description="Resource not found 5050")

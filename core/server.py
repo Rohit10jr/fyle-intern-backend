@@ -29,44 +29,49 @@ def ready():
     
 app.config['TRAP_HTTP_EXCEPTIONS']=True
 
-
 # Global error handler for the application
 @app.errorhandler(Exception)  # This catches any exception that inherits from Python's built-in Exception class
 def handle_error(err):
+    print("inside handle error")
     # Handle custom application-specific errors (FyleError)
     if isinstance(err, FyleError):
-        # Return a JSON response with the error class name, custom message, and HTTP status code
+        print("inside FyleError")
         return jsonify(
-            error=err.__class__.__name__,  # (e.g., "FyleError")
-            message=err.message  # Custom error message and status code stored in FyleError
+            error=err.__class__.__name__,  
+            message=err.message 
         ), err.status_code 
 
     # Handle validation errors from Marshmallow
     elif isinstance(err, ValidationError):
-        # Return a JSON response with validation error details and a 400 Bad Request status code
+        print("inside ValidationError")
         return jsonify(
-            error=err.__class__.__name__,  # ("ValidationError")
+            error=err.__class__.__name__,  
             message=err.messages  
         ), 400
 
-    # Handle database integrity errors from SQLAlchemy
     elif isinstance(err, IntegrityError):
+        print("inside IntegrityError")
         return jsonify(
-            error=err.__class__.__name__,  # ("IntegrityError")
-            message=str(err.orig)  # Original database error message
+            error=err.__class__.__name__, 
+            message=str(err.orig)  
         ), 400
 
-    # Handle other HTTP-related exceptions (e.g., 404, 403)
+  
     elif isinstance(err, HTTPException):
+        print("inside HTTPExceptions")
         return jsonify(
-            error=err.__class__.__name__,  # (e.g., "NotFound", "Forbidden")
-            message=str(err)  # Description of the HTTP error
+            error=err.__class__.__name__,  
+            message=str(err) 
         ), err.code
+
+    # if err.code != 409:  # Skip 409 Conflict
+    #     if isinstance(err, HTTPException):
+    #         print("inside HTTPException")
+    #         return jsonify(
+    #             error=err.__class__.__name__,
+    #             message=str(err)
+    #         ), err.code
 
     # If the error doesn't match any known cases, raise err is executed, and passed back to Flask’s default error handling mechanism
     raise err
 
-
-# err.__class__.__name__ is not a constructor; it simply gets the name of the exception class for better readability in the response.
-
-# The isinstance() function checks whether the object err is an instance of the class FyleError. If it is, this block of code will execute.

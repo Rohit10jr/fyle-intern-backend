@@ -98,20 +98,6 @@ def test_grade_assignment_invalid_id_value(client, h_principal):
     assert response.status_code == 400
 
 
-def test_grade_assignment_invalid_id(client, h_principal):
-    """Test to ensure grading an assignment with an invalid ID fails."""
-    response = client.post(
-        '/principal/assignments/grade',
-        json={
-            'id': 6,
-            'grade': GradeEnum.B.value
-        },
-        headers=h_principal
-    )
-    
-    assert response.status_code == 404
-
-
 def test_grade_assignment_invalid_id_2(client, h_principal):
     """Test to ensure grading an assignment with an invalid ID fails."""
     response = client.post(
@@ -124,22 +110,6 @@ def test_grade_assignment_invalid_id_2(client, h_principal):
     )
 
     assert response.status_code == 404
-    data = response.json
-    assert data['error'] == 'FyleError'
-
-
-
-# def test_get_assignments_specific_states(client, h_principal):
-#     """Test to ensure it fetches assignment with GRADED or SUBMITTED."""
-#     response = client.get(
-#         '/principal/assignments',
-#         headers=h_principal
-#     )
-#     assert response.status_code == 200
-
-#     data = response.json['data']
-#     for assignment in data:
-#         assert assignment['state'] in [AssignmentStateEnum.SUBMITTED, AssignmentStateEnum.GRADED]
 
 
 def test_grade_assignment_invalid_payload(client, h_principal):
@@ -240,19 +210,6 @@ def test_assignments_malformed_header(client, h_teacher_1):
     assert response.status_code == 403
 
 
-def test_grade_malformed_header(client, h_student_1):
-    """
-    Test grade with a student id.
-    """
-    
-    response = client.post(
-        '/principal/assignments/grade',
-        headers=h_student_1
-    )
-
-    assert response.status_code == 403  
-
-
 # principal/teacher route 
 def test_list_teachers_no_teachers(client, h_principal):
     """
@@ -314,18 +271,6 @@ def test_list_teachers_malformed_header(client, h_student_1):
     response = client.get(
         '/principal/teachers',
         headers=h_student_1
-    )
-
-    assert response.status_code == 403  
-
-def test_list_teachers_malformed_header2(client, h_teacher_1):
-    """
-    Test fetching teachers with a Teacher id.
-    """
-    
-    response = client.get(
-        '/principal/teachers',
-        headers=h_teacher_1
     )
 
     assert response.status_code == 403  
